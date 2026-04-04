@@ -40,7 +40,6 @@
   <li><a href="./LICENSE">License</a></li>
   <li><a href="./CODE_OF_CONDUCT.md">Code of Conduct</a></li>
   <li><a href="./CONTRIBUTING.md">Contributions</a></li>
-  <li><a href="./ROADMAP.md">Roadmap</a></li>
 </ul>
 
 
