@@ -1,10 +1,12 @@
 <h1 align="center">Xwall</h1>
 
 <div align="center">
-  <img src="https://xscriptor.github.io/badges/licenses/mit.svg" alt="mit" />
-  <img src="https://xscriptor.github.io/badges/frameworks/react.svg" alt="react" />
-  <img src="https://xscriptor.github.io/badges/languages/typescript.svg" alt="typescript" />
-  <img src="https://xscriptor.github.io/badges/tools/vite.svg" alt="vite" />
+  <a href="https://github.com/xscriptor/xwall/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor/xwall/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a>
+  <a href="https://github.com/xscriptor/xwall/actions/workflows/deploy-pages.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor/xwall/deploy-pages.yml?branch=main&style=for-the-badge&label=Deploy" alt="Deploy status" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-111827?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/badge/React-19-111827?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-5.9-111827?style=for-the-badge&logo=typescript&logoColor=3178C6" alt="TypeScript 5.9" />
+  <img src="https://img.shields.io/badge/Vite-7-111827?style=for-the-badge&logo=vite&logoColor=646CFF" alt="Vite 7" />
   
   <p>Interactive, aesthetic wallpaper generator that creates fluid, liquid-like visuals in real-time. It runs directly in your browser and allows you to customize the color palette, texture, and various distortion effects to create unique 4k wallpapers.</p>
 </div>
@@ -28,11 +30,23 @@
   <li>Install dependencies:
     <pre><code class="language-bash">npm install</code></pre>
   </li>
+  <li>Run the full quality gate when needed:
+    <pre><code class="language-bash">npm run check</code></pre>
+  </li>
   <li>Start the development server:
     <pre><code class="language-bash">npm run dev</code></pre>
   </li>
   <li>Open the local URL in your browser.</li>
 </ol>
+
+<h2>Quality and Automation</h2>
+<ul>
+  <li><strong>Type Safety</strong>: <code>npm run typecheck</code> validates the full TypeScript project before building.</li>
+  <li><strong>Targeted Tests</strong>: <code>npm run test</code> runs Vitest against the export/signature utilities.</li>
+  <li><strong>Single Quality Gate</strong>: <code>npm run check</code> runs lint, typecheck, and tests in one command.</li>
+  <li><strong>Continuous Integration</strong>: <code>.github/workflows/ci.yml</code> executes the quality gate on pushes and pull requests.</li>
+  <li><strong>GitHub Pages Deployment</strong>: <code>.github/workflows/deploy-pages.yml</code> builds the app and deploys <code>dist/</code> using the official Pages actions.</li>
+</ul>
 
 <h2 align="center" id="related-documents">Related Documents</h2>
 

@@ -1,135 +1,163 @@
-export const encodeLSB = (
-    sourceCanvas: HTMLCanvasElement,
-    text: string,
-    overlayText?: string,
-    overlayPosition?: 'center' | 'bottom'
-): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        try {
-            const width = sourceCanvas.width
-            const height = sourceCanvas.height
+const CHANNELS_PER_PIXEL = 4
+const NULL_TERMINATOR = '\0'
 
-            // Create a temporary canvas
-            const tempCanvas = document.createElement('canvas')
-            tempCanvas.width = width
-            tempCanvas.height = height
-            const ctx = tempCanvas.getContext('2d')
+const isAlphaChannel = (channelIndex: number) =>
+  channelIndex % CHANNELS_PER_PIXEL === CHANNELS_PER_PIXEL - 1
 
-            if (!ctx) {
-                reject(new Error('Could not get 2D context'))
-                return
-            }
+export const textToBitArray = (text: string) =>
+  Array.from(`${text}${NULL_TERMINATOR}`).flatMap((char) => {
+    const codePoint = char.charCodeAt(0)
 
-            // Draw the source WebGL canvas onto the 2D canvas
-            ctx.drawImage(sourceCanvas, 0, 0)
+    return codePoint
+      .toString(2)
+      .padStart(8, '0')
+      .split('')
+      .map((bit) => Number(bit))
+  })
 
-            // Draw Overlay Text if provided
-            if (overlayText) {
-                // High resolution sizing
-                const fontSize = Math.floor(height * 0.05) // 5% of height
-                ctx.font = `500 ${fontSize}px Inter, sans-serif`
-                ctx.textAlign = 'center'
-                ctx.textBaseline = 'middle'
+export const embedBitsInImageData = (source: Uint8ClampedArray, bits: number[]) => {
+  const next = new Uint8ClampedArray(source)
+  let bitIndex = 0
 
-                // Shadow for readability
-                ctx.shadowColor = 'rgba(0,0,0,0.5)'
-                ctx.shadowBlur = 20
-                ctx.shadowOffsetX = 0
-                ctx.shadowOffsetY = 10
+  for (let index = 0; index < next.length; index += 1) {
+    if (isAlphaChannel(index)) {
+      continue
+    }
 
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    if (bitIndex >= bits.length) {
+      break
+    }
 
-                let x = width / 2
-                let y = height / 2
+    next[index] = (next[index] & 0xfe) | bits[bitIndex]
+    bitIndex += 1
+  }
 
-                if (overlayPosition === 'bottom') {
-                    y = height - (height * 0.1) // 10% from bottom
-                }
-
-                ctx.fillText(overlayText, x, y)
-
-                // Reset shadow
-                ctx.shadowColor = 'transparent'
-            }
-
-            const imgData = ctx.getImageData(0, 0, width, height)
-            const data = imgData.data
-
-            // Prepare the message: text + NULL terminator
-            const message = text + '\0'
-            const binaryMessage = Array.from(message)
-                .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'))
-                .join('')
-
-            if (binaryMessage.length > data.length / 4) {
-                console.warn('Text is too long to hide in this image. Truncating.')
-            }
-
-            // Embed message in the LSb of the Blue channel (index 2, 6, 10...)
-            // Alternatively, spread across RGB. Simple approach: Use consecutive pixels mostly.
-            // We will modify the R, G, and B channels sequentially to pack it tighter.
-            // data: [R, G, B, A, R, G, B, A ...]
-
-            let msgIndex = 0
-            for (let i = 0; i < data.length; i++) {
-                // Skip Alpha channel (every 4th byte, index 3, 7, 11...)
-                if ((i + 1) % 4 === 0) continue;
-
-                if (msgIndex < binaryMessage.length) {
-                    const bit = binaryMessage[msgIndex]
-                    // Clear LSB and OR with new bit
-                    data[i] = (data[i] & 0xFE) | parseInt(bit, 10)
-                    msgIndex++
-                } else {
-                    break
-                }
-            }
-
-            ctx.putImageData(imgData, 0, 0)
-            resolve(tempCanvas.toDataURL('image/png', 1.0))
-        } catch (e) {
-            reject(e)
-        }
-    })
+  return {
+    data: next,
+    truncated: bitIndex < bits.length,
+  }
 }
 
-export const decodeLSB = (imageSrc: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const img = new Image()
-        img.crossOrigin = "Anonymous"
-        img.onload = () => {
-            const canvas = document.createElement('canvas')
-            canvas.width = img.width
-            canvas.height = img.height
-            const ctx = canvas.getContext('2d')
-            if (!ctx) return reject('No context')
+export const extractMessageFromImageData = (data: Uint8ClampedArray) => {
+  let byte = ''
+  let message = ''
 
-            ctx.drawImage(img, 0, 0)
-            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+  for (let index = 0; index < data.length; index += 1) {
+    if (isAlphaChannel(index)) {
+      continue
+    }
 
-            let binary = ''
-            let result = ''
+    byte += String(data[index] & 1)
 
-            for (let i = 0; i < data.length; i++) {
-                // Skip Alpha
-                if ((i + 1) % 4 === 0) continue
+    if (byte.length !== 8) {
+      continue
+    }
 
-                // Get LSB
-                binary += (data[i] & 1).toString()
+    const codePoint = Number.parseInt(byte, 2)
 
-                if (binary.length === 8) {
-                    const charCode = parseInt(binary, 2)
-                    if (charCode === 0) {
-                        resolve(result) // Null terminator found
-                        return
-                    }
-                    result += String.fromCharCode(charCode)
-                    binary = ''
-                }
-            }
-            resolve(result)
-        }
-        img.onerror = reject
-        img.src = imageSrc
-    })
+    if (codePoint === 0) {
+      return message
+    }
+
+    message += String.fromCharCode(codePoint)
+    byte = ''
+  }
+
+  return message
+}
+
+const drawOverlayText = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  overlayText: string,
+  overlayPosition: 'center' | 'bottom' = 'center',
+) => {
+  const lines = overlayText.split('\n')
+  const fontSize = Math.floor(height * 0.05)
+  const lineHeight = Math.round(fontSize * 1.15)
+  const blockHeight = lineHeight * Math.max(lines.length - 1, 0)
+  const centerX = width / 2
+  const baseY = overlayPosition === 'bottom' ? height - height * 0.1 : height / 2
+  const startY = baseY - blockHeight / 2
+
+  ctx.font = `500 ${fontSize}px Inter, sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
+  ctx.shadowBlur = 20
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 10
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+
+  lines.forEach((line, index) => {
+    ctx.fillText(line, centerX, startY + lineHeight * index)
+  })
+
+  ctx.shadowColor = 'transparent'
+}
+
+const loadImage = (imageSrc: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+    image.crossOrigin = 'anonymous'
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error('Could not load the selected image.'))
+    image.src = imageSrc
+  })
+
+export const encodeLSB = (
+  sourceCanvas: HTMLCanvasElement,
+  text: string,
+  overlayText?: string,
+  overlayPosition?: 'center' | 'bottom',
+) => {
+  const width = sourceCanvas.width
+  const height = sourceCanvas.height
+  const tempCanvas = document.createElement('canvas')
+  tempCanvas.width = width
+  tempCanvas.height = height
+
+  const ctx = tempCanvas.getContext('2d')
+
+  if (!ctx) {
+    throw new Error('Could not get 2D context.')
+  }
+
+  ctx.drawImage(sourceCanvas, 0, 0)
+
+  if (overlayText) {
+    drawOverlayText(ctx, width, height, overlayText, overlayPosition)
+  }
+
+  const imageData = ctx.getImageData(0, 0, width, height)
+  const messageBits = textToBitArray(text)
+  const { data, truncated } = embedBitsInImageData(imageData.data, messageBits)
+
+  if (truncated) {
+    console.warn('Text is too long to hide in this image. The signature was truncated.')
+  }
+
+  imageData.data.set(data)
+  ctx.putImageData(imageData, 0, 0)
+
+  return tempCanvas.toDataURL('image/png', 1.0)
+}
+
+export const decodeLSB = async (imageSrc: string) => {
+  const image = await loadImage(imageSrc)
+  const canvas = document.createElement('canvas')
+  canvas.width = image.width
+  canvas.height = image.height
+
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    throw new Error('No canvas context available.')
+  }
+
+  ctx.drawImage(image, 0, 0)
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+  return extractMessageFromImageData(imageData.data)
 }

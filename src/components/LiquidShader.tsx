@@ -1,6 +1,5 @@
-
 import { shaderMaterial } from '@react-three/drei'
-import { extend, useFrame, useThree } from '@react-three/fiber'
+import { extend, useFrame, useThree, type ThreeElement } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import fragmentShader from '../shaders/liquid.frag?raw'
@@ -35,7 +34,7 @@ extend({ LiquidMaterial })
 
 declare module '@react-three/fiber' {
   interface ThreeElements {
-    liquidMaterial: any
+    liquidMaterial: ThreeElement<typeof LiquidMaterial>
   }
 }
 
@@ -55,8 +54,8 @@ export const LiquidShader = ({
   colors, seed, grain, speed, transition,
   pixelation, distortion, relief, flowVector
 }: LiquidShaderProps) => {
-  const ref = useRef<any>(null)
-  const { viewport, size } = useThree()
+  const ref = useRef<InstanceType<typeof LiquidMaterial>>(null)
+  const { gl, viewport, size } = useThree()
 
   const colorUniforms = useMemo(() => {
     const c = [...colors]
@@ -67,7 +66,7 @@ export const LiquidShader = ({
   useFrame((_state, delta) => {
     if (ref.current) {
       ref.current.uTime += delta * (speed * 5.0)
-      ref.current.uResolution.set(size.width * viewport.dpr, size.height * viewport.dpr)
+      ref.current.uResolution.set(size.width * gl.getPixelRatio(), size.height * gl.getPixelRatio())
       ref.current.uSeed = seed
       ref.current.uColors = colorUniforms
       ref.current.uGrain = grain
