@@ -1,8 +1,8 @@
 <h1 align="center">Xwall</h1>
 
 <div align="center">
-  <a href="https://github.com/xscriptor/xwall/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor/xwall/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a>
-  <a href="https://github.com/xscriptor/xwall/actions/workflows/deploy-pages.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor/xwall/deploy-pages.yml?branch=main&style=for-the-badge&label=Deploy" alt="Deploy status" /></a>
+  <a href="https://github.com/xscriptor-colors/xww/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor-colors/xww/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a>
+  <a href="https://github.com/xscriptor-colors/xww/actions/workflows/deploy-pages.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor-colors/xww/deploy-pages.yml?branch=main&style=for-the-badge&label=Deploy" alt="Deploy status" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-111827?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/React-19-111827?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5.9-111827?style=for-the-badge&logo=typescript&logoColor=3178C6" alt="TypeScript 5.9" />
