@@ -1,91 +1,58 @@
 import { Bloom, BrightnessContrast, ChromaticAberration, EffectComposer, HueSaturation, Vignette } from '@react-three/postprocessing'
-import { Canvas, useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { memo, type RefObject } from 'react'
 import { BlendFunction } from 'postprocessing'
-import type * as THREE from 'three'
-import { LiquidShader } from './LiquidShader'
+import type { WallpaperStyle } from '../config/app'
+import type { SceneState } from '../three/sceneState'
+import { WallpaperShader } from './WallpaperShader'
 
 interface CanvasSceneProps {
-  colors: string[]
-  seed: number
-  grain: number
-  speed: number
-  transition: number
-  pixelRatio: number
-  pixelation: number
-  distortion: number
-  relief: number
-  flowVector: THREE.Vector2
+  stateRef: RefObject<SceneState>
+  style: WallpaperStyle
+  dpr: number
   bloomStrength: number
   bloomThreshold: number
   aberration: number
   vignette: number
   saturation: number
   brightness: number
-  isExporting: boolean
-  onCanvasReady: (canvas: HTMLCanvasElement) => void
 }
 
-const CanvasCaptureBridge = ({ onCanvasReady }: { onCanvasReady: (canvas: HTMLCanvasElement) => void }) => {
-  const gl = useThree((state) => state.gl)
-
-  useEffect(() => {
-    onCanvasReady(gl.domElement)
-  }, [gl, onCanvasReady])
-
-  return null
-}
-
-export const CanvasScene = ({
-  colors,
-  seed,
-  grain,
-  speed,
-  transition,
-  pixelRatio,
-  pixelation,
-  distortion,
-  relief,
-  flowVector,
+export const CanvasScene = memo(function CanvasScene({
+  stateRef,
+  style,
+  dpr,
   bloomStrength,
   bloomThreshold,
   aberration,
   vignette,
   saturation,
   brightness,
-  isExporting,
-  onCanvasReady,
-}: CanvasSceneProps) => {
+}: CanvasSceneProps) {
+  const hasEffects =
+    bloomStrength > 0 || aberration > 0 || vignette > 0 || saturation !== 0 || brightness !== 0
+
   return (
     <Canvas
       flat
-      dpr={isExporting ? 2 : pixelRatio}
+      dpr={dpr}
       gl={{
         antialias: true,
-        preserveDrawingBuffer: true,
+        powerPreference: 'high-performance',
       }}
       orthographic
       camera={{ zoom: 1, position: [0, 0, 100] }}
     >
-      <CanvasCaptureBridge onCanvasReady={onCanvasReady} />
-      <LiquidShader
-        colors={colors}
-        seed={seed}
-        grain={grain}
-        speed={speed}
-        transition={transition}
-        pixelation={pixelation}
-        distortion={distortion}
-        relief={relief}
-        flowVector={flowVector}
-      />
-      <EffectComposer>
-        <Bloom luminanceThreshold={bloomThreshold} intensity={bloomStrength} levels={9} mipmapBlur />
-        <ChromaticAberration offset={[aberration, aberration]} />
-        <Vignette offset={0.3} darkness={vignette} eskil={false} blendFunction={BlendFunction.NORMAL} />
-        <HueSaturation saturation={saturation} hue={0} />
-        <BrightnessContrast brightness={brightness} contrast={0} />
-      </EffectComposer>
+      <WallpaperShader stateRef={stateRef} style={style} />
+      {hasEffects && (
+        <EffectComposer>
+          <Bloom luminanceThreshold={bloomThreshold} intensity={bloomStrength} levels={9} mipmapBlur />
+          <ChromaticAberration offset={[aberration, aberration]} />
+          <Vignette offset={0.3} darkness={vignette} eskil={false} blendFunction={BlendFunction.NORMAL} />
+          <HueSaturation saturation={saturation} hue={0} />
+          <BrightnessContrast brightness={brightness} contrast={0} />
+        </EffectComposer>
+      )}
     </Canvas>
   )
-}
+})

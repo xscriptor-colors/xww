@@ -16,7 +16,6 @@ export default defineConfig({
           vendor_react: ['react', 'react-dom'],
           vendor_three: ['three', '@react-three/fiber'],
           vendor_extras: ['@react-three/drei', '@react-three/postprocessing', 'postprocessing'],
-          vendor_ui: ['leva'],
         },
       },
     },

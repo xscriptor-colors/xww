@@ -1,100 +1,112 @@
-import { useCallback, useState, type RefObject } from 'react'
-import { EXPORT_SIZE, XWALL_SIGNATURE } from '../config/app'
+import { useCallback, useRef, useState, type RefObject } from 'react'
+import {
+  EXPORT_DIMENSIONS,
+  XWALL_SIGNATURE,
+  type ExportFormat,
+  type ExportSize,
+} from '../config/app'
+import { ExportRenderer, type ExportPostSettings, type ExportSceneState } from '../three/exportRenderer'
+import type { SceneState } from '../three/sceneState'
+import { drawTextOverlay, embedLSBInCanvas, loadImage } from '../utils/steganography'
 import { useLatestRef } from './useLatestRef'
-import { encodeLSB } from '../utils/steganography'
 
-type OverlayPosition = 'center' | 'bottom'
-type ExportStatus = { tone: 'info' | 'success' | 'error'; message: string } | null
+export type ExportStatus = { tone: 'info' | 'success' | 'error'; message: string } | null
 
 interface UseWallpaperExportOptions {
-  canvasRef: RefObject<HTMLCanvasElement | null>
-  wrapperRef: RefObject<HTMLDivElement | null>
-  overlayText: string
-  overlayPosition: OverlayPosition
+  sceneStateRef: RefObject<SceneState>
+  styleRef: RefObject<string>
+  formatRef: RefObject<ExportFormat>
+  sizeRef: RefObject<ExportSize>
+  qualityRef: RefObject<number>
+  overlayTextRef: RefObject<string>
+  overlayPositionRef: RefObject<'center' | 'bottom'>
+  postRef: RefObject<ExportPostSettings>
   onStatusChange: (status: ExportStatus) => void
 }
 
-const waitForRender = (delay = 500) =>
-  new Promise<void>((resolve) => {
-    window.setTimeout(() => resolve(), delay)
-  })
-
-const waitForNextFrame = () =>
-  new Promise<void>((resolve) => {
-    window.requestAnimationFrame(() => resolve())
-  })
-
 export const useWallpaperExport = ({
-  canvasRef,
-  wrapperRef,
-  overlayText,
-  overlayPosition,
+  sceneStateRef,
+  styleRef,
+  formatRef,
+  sizeRef,
+  qualityRef,
+  overlayTextRef,
+  overlayPositionRef,
+  postRef,
   onStatusChange,
 }: UseWallpaperExportOptions) => {
   const [isExporting, setIsExporting] = useState(false)
-  const overlayTextRef = useLatestRef(overlayText)
-  const overlayPositionRef = useLatestRef(overlayPosition)
+  const rendererRef = useRef<ExportRenderer | null>(null)
   const statusChangeRef = useLatestRef(onStatusChange)
 
   const exportWallpaper = useCallback(async () => {
-    const wrapper = wrapperRef.current
-
-    if (!wrapper) {
-      statusChangeRef.current({
-        tone: 'error',
-        message: 'The render container is not ready yet.',
-      })
-      return
+    if (!rendererRef.current) {
+      rendererRef.current = new ExportRenderer()
     }
 
+    const scene = sceneStateRef.current
+    const state: ExportSceneState = {
+      colors: scene.colors,
+      seed: scene.seed,
+      grain: scene.grain,
+      time: scene.time,
+      transition: scene.transition,
+      pixelation: scene.pixelation,
+      distortion: scene.distortion,
+      relief: scene.relief,
+      flow: scene.flow,
+      styleParams: scene.styleParams,
+      octaves: scene.octaves,
+      style: styleRef.current as ExportSceneState['style'],
+    }
+
+    scene.frozen = true
     setIsExporting(true)
     statusChangeRef.current({
       tone: 'info',
-      message: 'Preparing 4K export...',
+      message: 'Rendering high-resolution frame...',
     })
 
-    const originalStyles = {
-      width: wrapper.style.width,
-      height: wrapper.style.height,
-      position: wrapper.style.position,
-      zIndex: wrapper.style.zIndex,
-      top: wrapper.style.top,
-      left: wrapper.style.left,
-    }
-
     try {
-      wrapper.style.width = `${EXPORT_SIZE.width}px`
-      wrapper.style.height = `${EXPORT_SIZE.height}px`
-      wrapper.style.position = 'fixed'
-      wrapper.style.zIndex = '-9999'
-      wrapper.style.top = '0'
-      wrapper.style.left = '0'
+      const dataUrl = rendererRef.current.render(state, postRef.current)
+      const image = await loadImage(dataUrl)
+      const dimensions = EXPORT_DIMENSIONS[sizeRef.current]
+      const target = document.createElement('canvas')
+      target.width = dimensions.width
+      target.height = dimensions.height
 
-      await waitForNextFrame()
-      await waitForNextFrame()
-      await waitForRender(700)
+      const ctx = target.getContext('2d')
 
-      const canvas = canvasRef.current
-
-      if (!canvas) {
-        throw new Error('Canvas not ready for export.')
+      if (!ctx) {
+        throw new Error('Could not get a 2D context for the export.')
       }
 
-      const dataUrl = encodeLSB(
-        canvas,
-        XWALL_SIGNATURE,
-        overlayTextRef.current,
-        overlayPositionRef.current,
-      )
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+      ctx.drawImage(image, 0, 0, dimensions.width, dimensions.height)
 
+      if (overlayTextRef.current) {
+        drawTextOverlay(ctx, dimensions.width, dimensions.height, overlayTextRef.current, overlayPositionRef.current)
+      }
+
+      const format = formatRef.current
+      let href: string
+
+      if (format === 'png') {
+        href = embedLSBInCanvas(target, XWALL_SIGNATURE)
+      } else {
+        href = target.toDataURL(`image/${format}`, qualityRef.current)
+      }
+
+      const extension = format === 'jpeg' ? 'jpg' : format
       const link = document.createElement('a')
-      link.download = `xwall-${Date.now()}.png`
-      link.href = dataUrl
+      link.download = `xwall-${Date.now()}.${extension}`
+      link.href = href
       link.click()
 
       statusChangeRef.current({
         tone: 'success',
-        message: '4K wallpaper exported successfully.',
+        message: `Wallpaper exported as ${format.toUpperCase()}.`,
       })
     } catch (error) {
       console.error('Export failed', error)
@@ -103,16 +115,10 @@ export const useWallpaperExport = ({
         message: 'Export failed. Please try again in a few seconds.',
       })
     } finally {
-      wrapper.style.width = originalStyles.width || '100%'
-      wrapper.style.height = originalStyles.height || '100%'
-      wrapper.style.position = originalStyles.position || 'absolute'
-      wrapper.style.zIndex = originalStyles.zIndex || '1'
-      wrapper.style.top = originalStyles.top || '0'
-      wrapper.style.left = originalStyles.left || '0'
-
+      scene.frozen = false
       setIsExporting(false)
     }
-  }, [canvasRef, wrapperRef, overlayPositionRef, overlayTextRef, statusChangeRef])
+  }, [postRef, qualityRef, sizeRef, statusChangeRef, formatRef, overlayPositionRef, overlayTextRef, sceneStateRef, styleRef])
 
   return { exportWallpaper, isExporting }
 }

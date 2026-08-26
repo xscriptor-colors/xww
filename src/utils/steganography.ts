@@ -66,7 +66,7 @@ export const extractMessageFromImageData = (data: Uint8ClampedArray) => {
   return message
 }
 
-const drawOverlayText = (
+export const drawTextOverlay = (
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
@@ -97,7 +97,7 @@ const drawOverlayText = (
   ctx.shadowColor = 'transparent'
 }
 
-const loadImage = (imageSrc: string) =>
+export const loadImage = (imageSrc: string) =>
   new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image()
     image.crossOrigin = 'anonymous'
@@ -106,12 +106,7 @@ const loadImage = (imageSrc: string) =>
     image.src = imageSrc
   })
 
-export const encodeLSB = (
-  sourceCanvas: HTMLCanvasElement,
-  text: string,
-  overlayText?: string,
-  overlayPosition?: 'center' | 'bottom',
-) => {
+export const embedLSBInCanvas = (sourceCanvas: HTMLCanvasElement, text: string) => {
   const width = sourceCanvas.width
   const height = sourceCanvas.height
   const tempCanvas = document.createElement('canvas')
@@ -125,10 +120,6 @@ export const encodeLSB = (
   }
 
   ctx.drawImage(sourceCanvas, 0, 0)
-
-  if (overlayText) {
-    drawOverlayText(ctx, width, height, overlayText, overlayPosition)
-  }
 
   const imageData = ctx.getImageData(0, 0, width, height)
   const messageBits = textToBitArray(text)
