@@ -8,21 +8,24 @@
   <img src="https://img.shields.io/badge/TypeScript-5.9-111827?style=for-the-badge&logo=typescript&logoColor=3178C6" alt="TypeScript 5.9" />
   <img src="https://img.shields.io/badge/Vite-7-111827?style=for-the-badge&logo=vite&logoColor=646CFF" alt="Vite 7" />
   
-  <p>Interactive, aesthetic wallpaper generator that creates fluid, liquid-like visuals in real-time. It runs directly in your browser and allows you to customize the color palette, texture, and various distortion effects to create unique 4k wallpapers.</p>
+  <p>Interactive, aesthetic wallpaper generator that creates unique visuals in real-time. It runs directly in your browser and allows you to customize the color palette, texture, style, and various post-processing effects to create unique wallpapers up to 4k.</p>
 </div>
 
 <h2>Features</h2>
 <ul>
-  <li><strong>16-Color Palette</strong>: Fully customizable color selection (0-15) to match your aesthetic.</li>
+  <li><strong>6 Visual Styles</strong>: Liquid, Aurora, Waves, Marble, Nebula and Cells, each with its own controls.</li>
+  <li><strong>16-Color Palette</strong>: Fully customizable color selection (0-15) plus one-click random palettes.</li>
   <li><strong>Visual Effects</strong>:
     <ul>
-      <li><strong>Pixelation</strong>: Turn the fluid into retro pixel art.</li>
+      <li><strong>Pixelation</strong>: Turn the liquid into retro pixel art.</li>
       <li><strong>Distortion</strong>: Control the chaos and warping of the liquid.</li>
       <li><strong>Relief</strong>: Adjust the 3D depth and thickness of the paint.</li>
+      <li><strong>Post-processing</strong>: Bloom, chromatic aberration, vignette, saturation and brightness.</li>
     </ul>
   </li>
-  <li><strong>High Performance</strong>: Built with React Three Fiber and custom GLSL shaders.</li>
-  <li><strong>Export 4k</strong>: Render and download high-resolution (3840x2160) images instantly.</li>
+  <li><strong>Dock UI</strong>: A keyboard-accessible bottom dock organizes all controls in a solid, unique interface.</li>
+  <li><strong>High Performance</strong>: Built with React Three Fiber and custom GLSL shaders, with adaptive quality and offscreen 4k rendering.</li>
+  <li><strong>Export Options</strong>: PNG, JPG or WebP in 1080p, 1440p or true 4K (3840x2160). PNG files embed a verifiable Xwall signature.</li>
 </ul>
 
 <h2>In case you want to try this locally:</h2>
