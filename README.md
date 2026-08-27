@@ -1,4 +1,4 @@
-<h1 align="center">Xwall</h1>
+<h1 align="center">X Web Wallpaper</h1>
 
 <div align="center">
   <a href="https://github.com/xscriptor-colors/xww/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xscriptor-colors/xww/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a>
@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/React-19-111827?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5.9-111827?style=for-the-badge&logo=typescript&logoColor=3178C6" alt="TypeScript 5.9" />
   <img src="https://img.shields.io/badge/Vite-7-111827?style=for-the-badge&logo=vite&logoColor=646CFF" alt="Vite 7" />
-  
+
   <p>Interactive, aesthetic wallpaper generator that creates unique visuals in real-time. It runs directly in your browser and allows you to customize the color palette, texture, style, and various post-processing effects to create unique wallpapers up to 4k.</p>
 </div>
 
@@ -25,10 +25,10 @@
   </li>
   <li><strong>Dock UI</strong>: A keyboard-accessible bottom dock organizes all controls in a solid, unique interface.</li>
   <li><strong>High Performance</strong>: Built with React Three Fiber and custom GLSL shaders, with adaptive quality and offscreen 4k rendering.</li>
-  <li><strong>Export Options</strong>: PNG, JPG or WebP in 1080p, 1440p or true 4K (3840x2160). PNG files embed a verifiable Xwall signature.</li>
+  <li><strong>Export Options</strong>: PNG, JPG or WebP in 1080p, 1440p or true 4K (3840x2160). PNG files embed a verifiable X Web Wallpaper signature.</li>
 </ul>
 
-<h2>In case you want to try this locally:</h2>
+<h2>Local Development</h2>
 <ol>
   <li>Install dependencies:
     <pre><code class="language-bash">npm install</code></pre>
@@ -51,21 +51,21 @@
   <li><strong>GitHub Pages Deployment</strong>: <code>.github/workflows/deploy-pages.yml</code> builds the app and deploys <code>dist/</code> using the official Pages actions.</li>
 </ul>
 
-<h2 align="center" id="related-documents">Related Documents</h2>
+<h2 id="related-documents">Related Documents</h2>
 
 <ul>
   <li><a href="./LICENSE">License</a></li>
   <li><a href="./CODE_OF_CONDUCT.md">Code of Conduct</a></li>
   <li><a href="./CONTRIBUTING.md">Contributions</a></li>
+  <li><a href="./CHANGELOG.md">Changelog</a></li>
 </ul>
 
-
 <p><strong>Generated Wallpapers:</strong> <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a><br>
-The artworks and wallpapers generated using Xwall are licensed under Creative Commons Attribution 4.0 International. If you share, distribute, or use them publicly, you must give appropriate credit to this project.</p>
+The artworks and wallpapers generated using X Web Wallpaper are licensed under Creative Commons Attribution 4.0 International. If you share, distribute, or use them publicly, you must give appropriate credit to this project.</p>
 
 <div align="center">
-<h2 align="center" id="x">X</h2>
+<h2 id="x">X</h2>
 
-<a href="https://github.com/xscriptor">XGitHub</a> &middot;
-<a href="https://dev.xscriptor.com">XWeb</a>
+<a href="https://github.com/xscriptor">github</a> &middot;
+<a href="https://xscriptor.io">Dev</a>
 </div>

@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, type RefObject } from 'react'
 import {
   EXPORT_DIMENSIONS,
-  XWALL_SIGNATURE,
+  X_WEB_WALLPAPER_SIGNATURE,
   type ExportFormat,
   type ExportSize,
 } from '../config/app'
@@ -93,14 +93,14 @@ export const useWallpaperExport = ({
       let href: string
 
       if (format === 'png') {
-        href = embedLSBInCanvas(target, XWALL_SIGNATURE)
+        href = embedLSBInCanvas(target, X_WEB_WALLPAPER_SIGNATURE)
       } else {
         href = target.toDataURL(`image/${format}`, qualityRef.current)
       }
 
       const extension = format === 'jpeg' ? 'jpg' : format
       const link = document.createElement('a')
-      link.download = `xwall-${Date.now()}.${extension}`
+      link.download = `x-web-wallpaper-${Date.now()}.${extension}`
       link.href = href
       link.click()
 

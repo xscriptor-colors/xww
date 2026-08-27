@@ -1,20 +1,20 @@
 export const DEFAULT_PALETTE = [
-  '#000000',
-  '#fc618d',
-  '#7bd88f',
-  '#fce566',
-  '#fd9353',
-  '#948ae3',
   '#5ad4e6',
-  '#f7f1ff',
   '#000000',
-  '#fc618d',
-  '#7bd88f',
-  '#fce566',
-  '#fd9353',
-  '#948ae3',
   '#5ad4e6',
-  '#f7f1ff',
+  '#000000',
+  '#5ad4e6',
+  '#000000',
+  '#5ad4e6',
+  '#000000',
+  '#5ad4e6',
+  '#000000',
+  '#5ad4e6',
+  '#000000',
+  '#5ad4e6',
+  '#000000',
+  '#5ad4e6',
+  '#000000',
 ] as const
 
 export const EXPORT_SIZE = {
@@ -22,7 +22,7 @@ export const EXPORT_SIZE = {
   height: 2160,
 } as const
 
-export const XWALL_SIGNATURE = 'Created by Xscriptor with Xwall'
+export const X_WEB_WALLPAPER_SIGNATURE = 'Created by Xscriptor with X Web Wallpaper'
 
 export const WALLPAPER_STYLES = ['liquid', 'aurora', 'waves', 'marble', 'nebula', 'cells'] as const
 
