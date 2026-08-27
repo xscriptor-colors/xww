@@ -76,8 +76,8 @@ export const ExportPanel = ({
       )}
       <p className="panel-hint">
         {format === 'png'
-          ? 'PNG embeds a verifiable Xwall signature (LSB steganography).'
-          : 'JPG and WebP do not embed the Xwall signature.'}
+          ? 'PNG embeds a verifiable X Web Wallpaper signature (LSB steganography).'
+          : 'JPG and WebP do not embed the X Web Wallpaper signature.'}
       </p>
     </section>
 

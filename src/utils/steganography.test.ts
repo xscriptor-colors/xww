@@ -9,11 +9,11 @@ describe('steganography helpers', () => {
   it('encodes and decodes a short message without touching alpha', () => {
     const source = new Uint8ClampedArray(64).fill(240)
     const originalAlphaValues = source.filter((_, index) => (index + 1) % 4 === 0)
-    const bits = textToBitArray('Xwall')
+    const bits = textToBitArray('X Web Wallpaper')
     const { data, truncated } = embedBitsInImageData(source, bits)
 
     expect(truncated).toBe(false)
-    expect(extractMessageFromImageData(data)).toBe('Xwall')
+    expect(extractMessageFromImageData(data)).toBe('X Web Wallpaper')
 
     const nextAlphaValues = data.filter((_, index) => (index + 1) % 4 === 0)
     expect(Array.from(nextAlphaValues)).toEqual(Array.from(originalAlphaValues))

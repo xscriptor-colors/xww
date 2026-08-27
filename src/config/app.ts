@@ -22,7 +22,7 @@ export const EXPORT_SIZE = {
   height: 2160,
 } as const
 
-export const XWALL_SIGNATURE = 'Created by Xscriptor with Xwall'
+export const X_WEB_WALLPAPER_SIGNATURE = 'Created by Xscriptor with X Web Wallpaper'
 
 export const WALLPAPER_STYLES = ['liquid', 'aurora', 'waves', 'marble', 'nebula', 'cells'] as const
 

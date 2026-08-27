@@ -1,6 +1,6 @@
-# Contributing to XWall
+# Contributing to X Web Wallpaper
 
-First off, thank you for considering contributing to XWall. It's people like you that make open source such a great community.
+First off, thank you for considering contributing to X Web Wallpaper. It's people like you that make open source such a great community.
 
 ## How to contribute
 
